@@ -9,16 +9,16 @@ import type { UserInstance } from "../../models/user";
 
 import FullCalendar from "@fullcalendar/react";
 
-import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 import type { EventInput } from "@fullcalendar/core/index.js";
 
 import "../profileCalendar.scss";
 
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
@@ -131,25 +131,29 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   const generateStaffBasedCalendar = () => {
     const works: EventInput[] = [];
 
-    for (let i = 0; i < schedule?.assignments?.length; i++) {
+    const staffBasedAssignments = schedule?.assignments?.filter(
+      (assignment) => assignment.staffId === selectedStaffId
+    );
+
+    for (let i = 0; i < staffBasedAssignments?.length; i++) {
       const className = schedule?.shifts?.findIndex(
-        (shift) => shift.id === schedule?.assignments?.[i]?.shiftId
+        (shift) => shift.id === staffBasedAssignments?.[i]?.shiftId
       );
 
       const assignmentDate = dayjs
-        .utc(schedule?.assignments?.[i]?.shiftStart)
+        .utc(staffBasedAssignments?.[i]?.shiftStart)
         .format("YYYY-MM-DD");
       const isValidDate = validDates().includes(assignmentDate);
 
       const work = {
-        id: schedule?.assignments?.[i]?.id,
-        title: getShiftById(schedule?.assignments?.[i]?.shiftId)?.name,
+        id: staffBasedAssignments?.[i]?.id,
+        title: getShiftById(staffBasedAssignments?.[i]?.shiftId)?.name,
         duration: "01:00",
         date: assignmentDate,
-        staffId: schedule?.assignments?.[i]?.staffId,
-        shiftId: schedule?.assignments?.[i]?.shiftId,
+        staffId: staffBasedAssignments?.[i]?.staffId,
+        shiftId: staffBasedAssignments?.[i]?.shiftId,
         className: `event ${classes[className]} ${
-          getAssigmentById(schedule?.assignments?.[i]?.id)?.isUpdated
+          getAssigmentById(staffBasedAssignments?.[i]?.id)?.isUpdated
             ? "highlight"
             : ""
         } ${!isValidDate ? "invalid-date" : ""}`,
