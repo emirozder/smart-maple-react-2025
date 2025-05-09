@@ -2,8 +2,8 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useRef, useState } from "react";
-
 import type { ScheduleInstance } from "../../models/schedule";
 import type { UserInstance } from "../../models/user";
 
@@ -22,6 +22,7 @@ import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
 
 type CalendarContainerProps = {
   schedule: ScheduleInstance;
@@ -76,6 +77,9 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
 
   const [events, setEvents] = useState<EventInput[]>([]);
   const [highlightedDates, setHighlightedDates] = useState<string[]>([]);
+  const [highlightedPairDates, setHighlightedPairDates] = useState<string[]>(
+    []
+  );
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [initialDate, setInitialDate] = useState<Date | null>(null);
 
@@ -96,6 +100,10 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
 
   const getStaffById = (id: string) => {
     return schedule?.staffs?.find((staff) => id === staff.id);
+  };
+
+  const getSelectedStaff = () => {
+    return schedule?.staffs?.find((staff) => staff.id === selectedStaffId);
   };
 
   const validDates = () => {
@@ -173,7 +181,19 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
       if (offDays?.includes(transformedDate)) highlightedDates.push(date);
     });
 
+    let highlightedPairDates: string[] = [];
+    const pairList = getSelectedStaff()?.pairList || [];
+
+    pairList.forEach((pair) => {
+      const pairDates = getDatesBetween(
+        dayjs(pair.startDate, "DD.MM.YYYY").format("DD.MM.YYYY"),
+        dayjs(pair.endDate, "DD.MM.YYYY").format("DD.MM.YYYY")
+      );
+      highlightedPairDates.push(...pairDates);
+    });
+
     setHighlightedDates(highlightedDates);
+    setHighlightedPairDates(highlightedPairDates);
     setEvents(works);
   };
 
@@ -281,12 +301,15 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
               const isHighlighted = highlightedDates.includes(
                 dayjs(date).format("DD-MM-YYYY")
               );
+              const isHighlightedPair = highlightedPairDates.includes(
+                dayjs(date).format("DD-MM-YYYY")
+              );
 
               return (
                 <div
                   className={`${found ? "" : "date-range-disabled"} ${
                     isHighlighted ? "highlighted-date-orange" : ""
-                  } highlightedPair`}
+                  } ${isHighlightedPair ? "highlightedPair" : ""}`}
                 >
                   {dayjs(date).date()}
                 </div>
