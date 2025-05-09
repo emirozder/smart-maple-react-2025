@@ -19,6 +19,7 @@ import "../profileCalendar.scss";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import utc from "dayjs/plugin/utc";
+import Modal from "../Modal";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
@@ -82,6 +83,9 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   );
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [initialDate, setInitialDate] = useState<Date | null>(null);
+  const [selectedEventInfo, setSelectedEventInfo] =
+    useState<EventInput | null>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getPlugins = () => {
     const plugins = [dayGridPlugin];
@@ -218,108 +222,157 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   };
 
   return (
-    <div className="calendar-section">
-      <div className="calendar-wrapper">
-        <div className="staff-list">
-          {schedule?.staffs?.map((staff: any) => (
-            <div
-              key={staff.id}
-              onClick={() => setSelectedStaffId(staff.id)}
-              className={`staff ${
-                staff.id === selectedStaffId ? "active" : ""
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="20px"
-                viewBox="0 -960 960 960"
-                width="20px"
+    <>
+      <div className="calendar-section">
+        <div className="calendar-wrapper">
+          <div className="staff-list">
+            {schedule?.staffs?.map((staff: any) => (
+              <div
+                key={staff.id}
+                onClick={() => setSelectedStaffId(staff.id)}
+                className={`staff ${
+                  staff.id === selectedStaffId ? "active" : ""
+                }`}
               >
-                <path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17-62.5t47-43.5q60-30 124.5-46T480-440q67 0 131.5 16T736-378q30 15 47 43.5t17 62.5v112H160Zm320-400q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm160 228v92h80v-32q0-11-5-20t-15-14q-14-8-29.5-14.5T640-332Zm-240-21v53h160v-53q-20-4-40-5.5t-40-1.5q-20 0-40 1.5t-40 5.5ZM240-240h80v-92q-15 5-30.5 11.5T260-306q-10 5-15 14t-5 20v32Zm400 0H320h320ZM480-640Z" />
-              </svg>
-              <span>{staff.name}</span>
-            </div>
-          ))}
-        </div>
-        {initialDate && (
-          <FullCalendar
-            ref={calendarRef}
-            locale={auth.language}
-            plugins={getPlugins()}
-            contentHeight={400}
-            handleWindowResize={true}
-            selectable={true}
-            editable={false}
-            eventStartEditable={false}
-            eventOverlap={true}
-            eventDurationEditable={false}
-            initialView="dayGridMonth"
-            initialDate={initialDate}
-            events={events}
-            firstDay={1}
-            dayMaxEventRows={4}
-            fixedWeekCount={true}
-            showNonCurrentDates={true}
-            eventContent={(eventInfo: any) => (
-              <RenderEventContent eventInfo={eventInfo} />
-            )}
-            datesSet={(info: any) => {
-              const prevButton = document.querySelector(
-                ".fc-prev-button"
-              ) as HTMLButtonElement;
-              const nextButton = document.querySelector(
-                ".fc-next-button"
-              ) as HTMLButtonElement;
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="20px"
+                  viewBox="0 -960 960 960"
+                  width="20px"
+                >
+                  <path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17-62.5t47-43.5q60-30 124.5-46T480-440q67 0 131.5 16T736-378q30 15 47 43.5t17 62.5v112H160Zm320-400q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm160 228v92h80v-32q0-11-5-20t-15-14q-14-8-29.5-14.5T640-332Zm-240-21v53h160v-53q-20-4-40-5.5t-40-1.5q-20 0-40 1.5t-40 5.5ZM240-240h80v-92q-15 5-30.5 11.5T260-306q-10 5-15 14t-5 20v32Zm400 0H320h320ZM480-640Z" />
+                </svg>
+                <span>{staff.name}</span>
+              </div>
+            ))}
+          </div>
+          {initialDate && (
+            <FullCalendar
+              ref={calendarRef}
+              locale={auth.language}
+              plugins={getPlugins()}
+              contentHeight={400}
+              handleWindowResize={true}
+              selectable={true}
+              editable={false}
+              eventStartEditable={false}
+              eventOverlap={true}
+              eventDurationEditable={false}
+              initialView="dayGridMonth"
+              initialDate={initialDate}
+              events={events}
+              firstDay={1}
+              dayMaxEventRows={4}
+              fixedWeekCount={true}
+              showNonCurrentDates={true}
+              eventContent={(eventInfo: any) => (
+                <RenderEventContent eventInfo={eventInfo} />
+              )}
+              eventClick={(eventInfo: any) => {
+                setSelectedEventInfo(
+                  events.find((event) => event.id === eventInfo.event.id)
+                );
+                setIsModalOpen(true);
+              }}
+              eventDidMount={(info: any) => {
+                info.el.style.cursor = "pointer";
+              }}
+              datesSet={(info: any) => {
+                const prevButton = document.querySelector(
+                  ".fc-prev-button"
+                ) as HTMLButtonElement;
+                const nextButton = document.querySelector(
+                  ".fc-next-button"
+                ) as HTMLButtonElement;
 
-              if (
-                calendarRef?.current?.getApi().getDate() &&
-                !dayjs(schedule?.scheduleStartDate).isSame(
-                  calendarRef?.current?.getApi().getDate()
+                if (
+                  calendarRef?.current?.getApi().getDate() &&
+                  !dayjs(schedule?.scheduleStartDate).isSame(
+                    calendarRef?.current?.getApi().getDate()
+                  )
                 )
-              )
-                setInitialDate(calendarRef?.current?.getApi().getDate());
+                  setInitialDate(calendarRef?.current?.getApi().getDate());
 
-              const startDiff = dayjs(info.start)
-                .utc()
-                .diff(
-                  dayjs(schedule.scheduleStartDate).subtract(1, "day").utc(),
+                const startDiff = dayjs(info.start)
+                  .utc()
+                  .diff(
+                    dayjs(schedule.scheduleStartDate).subtract(1, "day").utc(),
+                    "days"
+                  );
+                const endDiff = dayjs(dayjs(schedule.scheduleEndDate)).diff(
+                  info.end,
                   "days"
                 );
-              const endDiff = dayjs(dayjs(schedule.scheduleEndDate)).diff(
-                info.end,
-                "days"
-              );
-              if (startDiff < 0 && startDiff > -35) prevButton.disabled = true;
-              else prevButton.disabled = false;
+                if (startDiff < 0 && startDiff > -35)
+                  prevButton.disabled = true;
+                else prevButton.disabled = false;
 
-              if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
-              else nextButton.disabled = false;
-            }}
-            dayCellContent={({ date }) => {
-              const found = validDates().includes(
-                dayjs(date).format("YYYY-MM-DD")
-              );
-              const isHighlighted = highlightedDates.includes(
-                dayjs(date).format("DD-MM-YYYY")
-              );
-              const isHighlightedPair = highlightedPairDates.includes(
-                dayjs(date).format("DD-MM-YYYY")
-              );
+                if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
+                else nextButton.disabled = false;
+              }}
+              dayCellContent={({ date }) => {
+                const found = validDates().includes(
+                  dayjs(date).format("YYYY-MM-DD")
+                );
+                const isHighlighted = highlightedDates.includes(
+                  dayjs(date).format("DD-MM-YYYY")
+                );
+                const isHighlightedPair = highlightedPairDates.includes(
+                  dayjs(date).format("DD-MM-YYYY")
+                );
 
-              return (
-                <div
-                  className={`${found ? "" : "date-range-disabled"} ${
-                    isHighlighted ? "highlighted-date-orange" : ""
-                  } ${isHighlightedPair ? "highlightedPair" : ""}`}
-                >
-                  {dayjs(date).date()}
-                </div>
-              );
-            }}
-          />
-        )}
+                return (
+                  <div
+                    className={`${found ? "" : "date-range-disabled"} ${
+                      isHighlighted ? "highlighted-date-orange" : ""
+                    } ${isHighlightedPair ? "highlightedPair" : ""}`}
+                  >
+                    {dayjs(date).date()}
+                  </div>
+                );
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
+      <div className="shift-modal">
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          customTitle={
+            <div className="modal-custom-title">
+              <span className="modal-title">{selectedEventInfo?.title}</span>
+              <span className="modal-subtitle">
+                {dayjs(selectedEventInfo?.date?.toString()).format(
+                  "DD.MM.YYYY"
+                )}
+              </span>
+            </div>
+          }
+        >
+          <div className="modal-body">
+            <div className="modal-item">
+              <label>Staff:</label>
+              <input
+                type="text"
+                value={getStaffById(selectedEventInfo?.staffId)?.name}
+                readOnly
+                className="modal-input"
+              />
+            </div>
+            <div className="modal-item">
+              <label>Duration:</label>
+              <input
+                type="text"
+                value={selectedEventInfo?.duration}
+                readOnly
+                className="modal-input"
+              />
+            </div>
+          </div>
+        </Modal>
+      </div>
+    </>
   );
 };
 
