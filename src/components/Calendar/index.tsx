@@ -249,7 +249,8 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
             contentHeight={400}
             handleWindowResize={true}
             selectable={true}
-            editable={true}
+            editable={false}
+            eventStartEditable={false}
             eventOverlap={true}
             eventDurationEditable={false}
             initialView="dayGridMonth"
