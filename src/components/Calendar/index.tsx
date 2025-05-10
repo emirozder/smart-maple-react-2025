@@ -158,7 +158,9 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
       const work = {
         id: staffBasedAssignments?.[i]?.id,
         title: getShiftById(staffBasedAssignments?.[i]?.shiftId)?.name,
-        duration: "01:00",
+        // duration: "01:00",
+        shiftStart: staffBasedAssignments?.[i]?.shiftStart,
+        shiftEnd: staffBasedAssignments?.[i]?.shiftEnd,
         date: assignmentDate,
         staffId: staffBasedAssignments?.[i]?.staffId,
         shiftId: staffBasedAssignments?.[i]?.shiftId,
@@ -330,10 +332,30 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
               />
             </div>
             <div className="modal-item">
+              <label>Shift Start:</label>
+              <input
+                type="text"
+                value={dayjs.utc(selectedEventInfo?.shiftStart).format("HH:mm")}
+                readOnly
+                className="modal-input"
+              />
+            </div>
+            <div className="modal-item">
+              <label>Shift End:</label>
+              <input
+                type="text"
+                value={dayjs.utc(selectedEventInfo?.shiftEnd).format("HH:mm")}
+                readOnly
+                className="modal-input"
+              />
+            </div>
+            <div className="modal-item">
               <label>Duration:</label>
               <input
                 type="text"
-                value={selectedEventInfo?.duration}
+                value={dayjs(selectedEventInfo?.shiftEnd)
+                  .diff(dayjs(selectedEventInfo?.shiftStart), "hour")
+                  .toString()}
                 readOnly
                 className="modal-input"
               />
