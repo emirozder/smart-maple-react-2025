@@ -6,18 +6,50 @@
   background-color: #f9f9f9;
 }
 
-.profile-section {
+.header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
   background-color: #fff;
-  padding: 16px;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
+  height: 60px;
+  overflow: hidden;
 
-.profile-info h2 {
-  margin: 0 0 8px;
+  .logo-section {
+    margin: 0 16px;
+    img {
+      width: 100%;
+      height: auto;
+      max-width: 140px;
+    }
+  }
+
+  .profile-section {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    background-color: #ddd;
+    border-radius: 8px;
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+
+      .profile-user {
+        margin: 0;
+        font-weight: 500;
+      }
+
+      .profile-email {
+        margin: 0;
+        font-size: 14px;
+      }
+    }
+  }
 }
 
 .calendar-section {

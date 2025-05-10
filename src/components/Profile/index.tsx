@@ -8,11 +8,20 @@ type ProfileCardProps = {
 
 const ProfileCard = ({ profile }: ProfileCardProps) => {
   return (
-    <div className="profile-section">
-      <div className="profile-info">
-        <h2>Welcome, {profile?.name ?? AuthSession.getName()}</h2>
-        <p>{profile?.email ?? AuthSession.getEmail()}</p>
-        <p>{profile?.role?.name ?? AuthSession.getRoles().name}</p>
+    <div className="header">
+      <div className="logo-section">
+        <img src="/smartmaple-logo.png" alt="smartmaple" />
+      </div>
+      <div className="profile-section">
+        <div className="profile-info">
+          <p className="profile-user">
+            {profile?.name ?? AuthSession.getName()} -{" "}
+            {profile?.role?.name ?? AuthSession.getRoles().name}
+          </p>
+          <p className="profile-email">
+            {profile?.email ?? AuthSession.getEmail()}
+          </p>
+        </div>
       </div>
     </div>
   );
