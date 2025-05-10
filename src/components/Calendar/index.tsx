@@ -278,41 +278,6 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
                 eventDidMount={(info: any) => {
                   info.el.style.cursor = "pointer";
                 }}
-                datesSet={(info: any) => {
-                  const prevButton = document.querySelector(
-                    ".fc-prev-button"
-                  ) as HTMLButtonElement;
-                  const nextButton = document.querySelector(
-                    ".fc-next-button"
-                  ) as HTMLButtonElement;
-
-                  if (
-                    calendarRef?.current?.getApi().getDate() &&
-                    !dayjs(schedule?.scheduleStartDate).isSame(
-                      calendarRef?.current?.getApi().getDate()
-                    )
-                  )
-                    setInitialDate(calendarRef?.current?.getApi().getDate());
-
-                  const startDiff = dayjs(info.start)
-                    .utc()
-                    .diff(
-                      dayjs(schedule.scheduleStartDate)
-                        .subtract(1, "day")
-                        .utc(),
-                      "days"
-                    );
-                  const endDiff = dayjs(dayjs(schedule.scheduleEndDate)).diff(
-                    info.end,
-                    "days"
-                  );
-                  if (startDiff < 0 && startDiff > -35)
-                    prevButton.disabled = true;
-                  else prevButton.disabled = false;
-
-                  if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
-                  else nextButton.disabled = false;
-                }}
                 dayCellContent={({ date }) => {
                   const found = validDates().includes(
                     dayjs(date).format("YYYY-MM-DD")
