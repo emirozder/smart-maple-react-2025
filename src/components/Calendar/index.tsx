@@ -247,91 +247,95 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
             ))}
           </div>
           {initialDate && (
-            <FullCalendar
-              ref={calendarRef}
-              locale={auth.language}
-              plugins={getPlugins()}
-              contentHeight={400}
-              handleWindowResize={true}
-              selectable={true}
-              editable={false}
-              eventStartEditable={false}
-              eventOverlap={true}
-              eventDurationEditable={false}
-              initialView="dayGridMonth"
-              initialDate={initialDate}
-              events={events}
-              firstDay={1}
-              dayMaxEventRows={4}
-              fixedWeekCount={true}
-              showNonCurrentDates={true}
-              eventContent={(eventInfo: any) => (
-                <RenderEventContent eventInfo={eventInfo} />
-              )}
-              eventClick={(eventInfo: any) => {
-                setSelectedEventInfo(
-                  events.find((event) => event.id === eventInfo.event.id)
-                );
-                setIsModalOpen(true);
-              }}
-              eventDidMount={(info: any) => {
-                info.el.style.cursor = "pointer";
-              }}
-              datesSet={(info: any) => {
-                const prevButton = document.querySelector(
-                  ".fc-prev-button"
-                ) as HTMLButtonElement;
-                const nextButton = document.querySelector(
-                  ".fc-next-button"
-                ) as HTMLButtonElement;
+            <div className="staff-calendar-container">
+              <FullCalendar
+                ref={calendarRef}
+                locale={auth.language}
+                plugins={getPlugins()}
+                contentHeight={400}
+                handleWindowResize={true}
+                selectable={true}
+                editable={false}
+                eventStartEditable={false}
+                eventOverlap={true}
+                eventDurationEditable={false}
+                initialView="dayGridMonth"
+                initialDate={initialDate}
+                events={events}
+                firstDay={1}
+                dayMaxEventRows={4}
+                fixedWeekCount={true}
+                showNonCurrentDates={true}
+                eventContent={(eventInfo: any) => (
+                  <RenderEventContent eventInfo={eventInfo} />
+                )}
+                eventClick={(eventInfo: any) => {
+                  setSelectedEventInfo(
+                    events.find((event) => event.id === eventInfo.event.id)
+                  );
+                  setIsModalOpen(true);
+                }}
+                eventDidMount={(info: any) => {
+                  info.el.style.cursor = "pointer";
+                }}
+                datesSet={(info: any) => {
+                  const prevButton = document.querySelector(
+                    ".fc-prev-button"
+                  ) as HTMLButtonElement;
+                  const nextButton = document.querySelector(
+                    ".fc-next-button"
+                  ) as HTMLButtonElement;
 
-                if (
-                  calendarRef?.current?.getApi().getDate() &&
-                  !dayjs(schedule?.scheduleStartDate).isSame(
-                    calendarRef?.current?.getApi().getDate()
+                  if (
+                    calendarRef?.current?.getApi().getDate() &&
+                    !dayjs(schedule?.scheduleStartDate).isSame(
+                      calendarRef?.current?.getApi().getDate()
+                    )
                   )
-                )
-                  setInitialDate(calendarRef?.current?.getApi().getDate());
+                    setInitialDate(calendarRef?.current?.getApi().getDate());
 
-                const startDiff = dayjs(info.start)
-                  .utc()
-                  .diff(
-                    dayjs(schedule.scheduleStartDate).subtract(1, "day").utc(),
+                  const startDiff = dayjs(info.start)
+                    .utc()
+                    .diff(
+                      dayjs(schedule.scheduleStartDate)
+                        .subtract(1, "day")
+                        .utc(),
+                      "days"
+                    );
+                  const endDiff = dayjs(dayjs(schedule.scheduleEndDate)).diff(
+                    info.end,
                     "days"
                   );
-                const endDiff = dayjs(dayjs(schedule.scheduleEndDate)).diff(
-                  info.end,
-                  "days"
-                );
-                if (startDiff < 0 && startDiff > -35)
-                  prevButton.disabled = true;
-                else prevButton.disabled = false;
+                  if (startDiff < 0 && startDiff > -35)
+                    prevButton.disabled = true;
+                  else prevButton.disabled = false;
 
-                if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
-                else nextButton.disabled = false;
-              }}
-              dayCellContent={({ date }) => {
-                const found = validDates().includes(
-                  dayjs(date).format("YYYY-MM-DD")
-                );
-                const isHighlighted = highlightedDates.includes(
-                  dayjs(date).format("DD-MM-YYYY")
-                );
-                const isHighlightedPair = highlightedPairDates.includes(
-                  dayjs(date).format("DD-MM-YYYY")
-                );
+                  if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
+                  else nextButton.disabled = false;
+                }}
+                dayCellContent={({ date }) => {
+                  const found = validDates().includes(
+                    dayjs(date).format("YYYY-MM-DD")
+                  );
+                  const isHighlighted = highlightedDates.includes(
+                    dayjs(date).format("DD-MM-YYYY")
+                  );
+                  const isHighlightedPair = highlightedPairDates.includes(
+                    dayjs(date).format("DD-MM-YYYY")
+                  );
 
-                return (
-                  <div
-                    className={`${found ? "" : "date-range-disabled"} ${
-                      isHighlighted ? "highlighted-date-orange" : ""
-                    } ${isHighlightedPair ? "highlightedPair" : ""}`}
-                  >
-                    {dayjs(date).date()}
-                  </div>
-                );
-              }}
-            />
+                  return (
+                    <div
+                      className={`${found ? "" : "date-range-disabled"} ${
+                        isHighlighted ? "highlighted-date-orange" : ""
+                      } ${isHighlightedPair ? "highlightedPair" : ""}`}
+                    >
+                      {dayjs(date).date()}
+                    </div>
+                  );
+                }}
+              />
+            </div>
           )}
         </div>
       </div>

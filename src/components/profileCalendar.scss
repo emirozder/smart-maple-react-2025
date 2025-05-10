@@ -61,13 +61,16 @@
 }
 
 .calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   min-height: 400px;
 }
 
 .staff-calendar-container {
   width: 100%;
   margin: 0 auto;
-  display: flex;
+  // display: flex;
   gap: 20px;
 
   .event-content {
